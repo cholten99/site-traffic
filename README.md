@@ -36,17 +36,36 @@ ukgovcomms.org, etc.) can be added once the pipeline is proven on these three.
 - A new expanded stats page (own small Flask app, reverse-proxied, following
   the media-resize pattern) shows historical graphs per site.
 
+## Cloudflare access (resolved 2026-07-13)
+
+- New token created in the CF dashboard, scoped to **Account > Account Analytics > Read**
+  (not Zone > Analytics — that's a different, unrelated permission group; Account
+  Analytics is what actually gates the GraphQL `httpRequests1dGroups` dataset
+  used for page-hit counts, even for zone-scoped queries).
+- Stored at `/home/dave/secrets/site_traffic_cf_token`, `dave:dave` `600`.
+- Verified live against all three v1 zones via the GraphQL Analytics API
+  (`https://api.cloudflare.com/client/v4/graphql`, `httpRequests1dGroups`,
+  filtered by `zoneTag` + `date_geq`/`date_leq`). Confirmed working for:
+  - bowsy.co.uk (zone `31ef5d67344395b08311a17f053cd5d4`)
+  - transformgov.org.uk (zone `bb04c883d9dada64c9482f8e4224335b`)
+  - ukpolyamory.org (zone `d300bf49cc010974ef0e988d87b1f128`)
+- Note: `/user/tokens/verify` is the wrong endpoint to sanity-check this kind
+  of token — it returned a misleading "Invalid API Token" for a token that
+  was actually valid but under-permissioned. Use a real GraphQL query against
+  the endpoint you actually need instead.
+
 ## Open questions
 
 - Search Console auth: which Google account/property verification is this
   tied to? Needs its own OAuth client_id/secret stored properly, not just a
   short-lived token (see the rclone OAuth lesson — tokens without a stored
   client_id/secret expire within days).
-- Cloudflare auth: API token scope needed for Analytics/GraphQL per zone.
-- Where do credentials live? Likely the centralized `/home/dave/secrets/`
-  store rather than a new per-project `.env`.
+- Where do the remaining credentials live? Likely the centralized
+  `/home/dave/secrets/` store (`site_traffic_<name>`), matching the
+  Cloudflare token above, rather than a new per-project `.env`.
 - Retention: how long to keep daily history before rolling up or pruning?
 
 ## Status
 
-Planning stage — no code written yet. See `TODO.md`.
+Planning stage — no code written yet. Cloudflare access is proven and ready
+to use; Search Console auth is still undecided. See `TODO.md`.
