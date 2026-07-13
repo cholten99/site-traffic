@@ -80,15 +80,35 @@ ukgovcomms.org, etc.) can be added once the pipeline is proven on these three.
   the "add user" step is UI-only and has to be repeated by hand (logged into
   whichever account owns it) for every future site added to this project.
 
+## Pipeline (built 2026-07-13)
+
+- `pull_daily.py` — pulls a trailing 5-day window (not just "yesterday") from
+  both APIs and upserts into SQLite on every run. This is deliberate: Search
+  Console's data has a 1-2 day reporting lag, so the most recent day or two
+  come back `NULL` on first pull and get filled in automatically by a later
+  run re-covering the same window, rather than needing separate backfill logic.
+- Schema (`site_traffic.db`, `daily_stats` table): `site`, `date`,
+  `search_clicks`, `search_impressions`, `page_views`, `page_requests`,
+  `fetched_at`, primary key `(site, date)`. Stores both Search Console metrics
+  and both Cloudflare metrics (not just the two the dashboard currently
+  displays) so the future graphed stats page (#7) doesn't need a schema change.
+- Scheduled via cron, `dave`'s crontab, daily at 06:30 UTC (after the 06:00
+  security audit) — `/var/www/site-traffic/pull_daily.py >> logs/pull.log`.
+- `daves-server-dashboard`'s Site Traffic section now reads live from this DB
+  (`get_site_traffic()` / `get_site_traffic_detail()` in its `app.py`) instead
+  of the old `SITE_TRAFFIC_MOCK` dict, and shows display names (Bowsy /
+  TransformGov / UK Polyamory) instead of raw domains.
+- "Daily" and "weekly" are computed independently per metric (not tied to one
+  row) — if Search Console hasn't reported today's number yet but Cloudflare
+  has, the table shows Cloudflare's fresh number rather than blanking both.
+
 ## Open questions
 
-- Where do the remaining credentials live? Likely the centralized
-  `/home/dave/secrets/` store (`site_traffic_<name>`), matching the
-  Cloudflare token and Google service account key above, rather than a new
-  per-project `.env`.
 - Retention: how long to keep daily history before rolling up or pruning?
+  Not urgent yet — the DB is tiny at this scale.
 
 ## Status
 
-Planning stage — no code written yet. Both Cloudflare and Search Console
-access are proven and ready to use. See `TODO.md`.
+Ingestion pipeline live and running daily. Remaining work: a graphed stats
+page (#7, replacing the current plain-table `/site-traffic` detail page) and
+adding more sites once this is proven out further (#8). See `TODO.md`.
