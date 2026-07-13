@@ -31,9 +31,12 @@ CF_ACCOUNT_ID = '2eb5ec3a089fa8e5e15fa523bd999cf3'
 
 SITES = [
     # domain, display name, Cloudflare zone ID, Search Console property, RUM siteTag
-    ('bowsy.co.uk',         'Bowsy',        '31ef5d67344395b08311a17f053cd5d4', 'sc-domain:bowsy.co.uk',         '4c4becd7ddee4238b282612265dbef0b'),
-    ('transformgov.org.uk', 'TransformGov', 'bb04c883d9dada64c9482f8e4224335b', 'sc-domain:transformgov.org.uk', 'c0a3b3e2ead4449fb4fc006565f73958'),
-    ('ukpolyamory.org',     'UK Polyamory', 'd300bf49cc010974ef0e988d87b1f128', 'sc-domain:ukpolyamory.org',     'c84a4c9d5c5a45b487c9fe480cb2770a'),
+    ('bowsy.co.uk',         'Bowsy',          '31ef5d67344395b08311a17f053cd5d4', 'sc-domain:bowsy.co.uk',         '4c4becd7ddee4238b282612265dbef0b'),
+    ('transformgov.org.uk', 'TransformGov',   'bb04c883d9dada64c9482f8e4224335b', 'sc-domain:transformgov.org.uk', 'c0a3b3e2ead4449fb4fc006565f73958'),
+    ('ukpolyamory.org',     'UK Polyamory',   'd300bf49cc010974ef0e988d87b1f128', 'sc-domain:ukpolyamory.org',     'c84a4c9d5c5a45b487c9fe480cb2770a'),
+    ('alobear.co.uk',       'Alo Bear',       '71ab1997c01c18db3e3d839591786c5a', 'sc-domain:alobear.co.uk',       'bfdea2f50b374393a1d0d7f2e3e92378'),
+    ('aloysius-bear.co.uk', 'Aloysius Bear',  '72a0f00f5dfc94b42dafa9b95882ac00', 'sc-domain:aloysius-bear.co.uk', 'cc715c5208bc4f7da6a2678a2a97158c'),
+    ('policycamp.org.uk',   'PolicyCamp',     'd68dc09a0cf25036fb9bc0cc23b58e66', 'sc-domain:policycamp.org.uk',   '103a6517117a4e64bd1232bab4dbe043'),
 ]
 
 
