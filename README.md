@@ -12,16 +12,19 @@ per site). This project replaces that mock with real numbers, pulled daily
 and kept as history, so the section's linked detail page can plot trends
 instead of a single day/week snapshot.
 
-## Scope (v1)
+## Scope
 
-Starting with three sites:
+Started with three sites, now six:
 
 - bowsy.co.uk — display name "Bowsy"
 - transformgov.org.uk — display name "TransformGov"
 - ukpolyamory.org — display name "UK Polyamory"
+- alobear.co.uk — display name "Alo Bear"
+- aloysius-bear.co.uk — display name "Aloysius Bear"
+- policycamp.org.uk — display name "PolicyCamp"
 
-Other sites on the dashboard's existing mock list (policycamp.org.uk,
-ukgovcomms.org, etc.) can be added once the pipeline is proven on these three.
+More can be added the same way (see "Site expansion" below). ukgovcomms.org
+and others are still candidates.
 
 ## Planned architecture
 
@@ -123,6 +126,26 @@ One gotcha: unlike Search Console, RUM has no multi-day reporting lag, so a
 date missing from the API response means zero events for that date, not
 "data not arrived yet" — those get stored as `0`, not `NULL`.
 
+## Site expansion (2026-07-13)
+
+Added alobear.co.uk, aloysius-bear.co.uk, policycamp.org.uk. Cloudflare zone
+IDs looked up via `GET /zones?name=<domain>`; RUM `siteTag`s found the same
+way as the original three — an unfiltered account-wide
+`rumPageloadEventsAdaptiveGroups` query, matched by the `requestHost`
+dimension (Web Analytics was already enabled account-wide, same as before).
+
+Search Console is **not yet granted** for these three — the service account
+hasn't been added as a user on any of them yet, so `search_clicks`/
+`search_impressions` come back `NULL` (403 from the API) until that manual
+per-property step is done, same process as the original three. Cloudflare/RUM
+data is live immediately since that's a single account-wide token, no
+per-site grant needed.
+
+Adding a new site from here is: 1) look up its CF zone ID and RUM siteTag,
+2) add a row to `SITES` in `pull_daily.py` and to `SITE_TRAFFIC_SITES` in the
+dashboard's `app.py`, 3) add the service account as a Restricted user on its
+Search Console property.
+
 ## Open questions
 
 - Retention: how long to keep daily history before rolling up or pruning?
@@ -130,6 +153,6 @@ date missing from the API response means zero events for that date, not
 
 ## Status
 
-Ingestion pipeline live and running daily. Remaining work: a graphed stats
-page (#7, replacing the current plain-table `/site-traffic` detail page) and
-adding more sites once this is proven out further (#8). See `TODO.md`.
+Ingestion pipeline and graphed stats page (#7) both live. Six sites
+configured; three still waiting on their Search Console grant (#8, see "Site
+expansion" above). See `TODO.md`.
