@@ -102,6 +102,27 @@ ukgovcomms.org, etc.) can be added once the pipeline is proven on these three.
   row) — if Search Console hasn't reported today's number yet but Cloudflare
   has, the table shows Cloudflare's fresh number rather than blanking both.
 
+## Bot traffic (resolved 2026-07-13)
+
+Raw Cloudflare `pageViews`/`requests` count every response regardless of who
+asked for it, and turned out to be **~100-1000x** real human traffic on these
+sites once compared against something bot-resistant — e.g. bowsy.co.uk showed
+~943 raw pageViews/day vs. 3 RUM-confirmed human pageloads across an entire
+week.
+
+Fix: Cloudflare **Web Analytics** (RUM — a JS beacon that only fires in a real
+browser) turned out to already be enabled account-wide, with a native `bot`
+dimension on top of that for the JS-capable bots that do trigger it. Switched
+to `viewer.accounts(...).rumPageloadEventsAdaptiveGroups`, filtered by each
+site's RUM `siteTag` (a different ID from its Cloudflare zone ID — found via
+the `requestHost` dimension on an unfiltered account-wide query). Schema keeps
+both: `page_views`/`page_requests` (raw, for reference) and `page_human`/
+`page_bot` (RUM, what the dashboard actually displays as "page hits").
+
+One gotcha: unlike Search Console, RUM has no multi-day reporting lag, so a
+date missing from the API response means zero events for that date, not
+"data not arrived yet" — those get stored as `0`, not `NULL`.
+
 ## Open questions
 
 - Retention: how long to keep daily history before rolling up or pruning?
