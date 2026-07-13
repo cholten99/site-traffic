@@ -54,18 +54,41 @@ ukgovcomms.org, etc.) can be added once the pipeline is proven on these three.
   was actually valid but under-permissioned. Use a real GraphQL query against
   the endpoint you actually need instead.
 
+## Search Console access (resolved 2026-07-13)
+
+- Used a dedicated **service account**, not OAuth — the 3 sites are verified
+  under 3 different personal Google accounts, and a service account's identity
+  is independent of any of them (adding it to a property works like sharing a
+  Drive file with any email address). OAuth would have meant a separate
+  client/token per owning account instead of one shared identity.
+- New GCP project `site-traffic-502301`, Search Console API enabled, service
+  account `site-traffic-reader@site-traffic-502301.iam.gserviceaccount.com`,
+  no project-level IAM role needed (access comes entirely from being added as
+  a user inside Search Console itself).
+- JSON key stored at `/home/dave/secrets/site_traffic_google_sa.json`,
+  `dave:dave` `600`.
+- Added as a **Restricted** user on all three properties (each a
+  domain-property, `sc-domain:<domain>`, under its own separate Google
+  account) via Search Console → Settings → Users and permissions.
+- Verified live: signed a JWT with the key, exchanged it for an access token
+  (`scope=.../auth/webmasters.readonly`), and pulled real daily
+  clicks/impressions from `searchAnalytics.query` for all three:
+  - bowsy.co.uk
+  - transformgov.org.uk
+  - ukpolyamory.org
+- Note: Search Console has **no public API for managing property users** —
+  the "add user" step is UI-only and has to be repeated by hand (logged into
+  whichever account owns it) for every future site added to this project.
+
 ## Open questions
 
-- Search Console auth: which Google account/property verification is this
-  tied to? Needs its own OAuth client_id/secret stored properly, not just a
-  short-lived token (see the rclone OAuth lesson — tokens without a stored
-  client_id/secret expire within days).
 - Where do the remaining credentials live? Likely the centralized
   `/home/dave/secrets/` store (`site_traffic_<name>`), matching the
-  Cloudflare token above, rather than a new per-project `.env`.
+  Cloudflare token and Google service account key above, rather than a new
+  per-project `.env`.
 - Retention: how long to keep daily history before rolling up or pruning?
 
 ## Status
 
-Planning stage — no code written yet. Cloudflare access is proven and ready
-to use; Search Console auth is still undecided. See `TODO.md`.
+Planning stage — no code written yet. Both Cloudflare and Search Console
+access are proven and ready to use. See `TODO.md`.
